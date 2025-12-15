@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>StockWise Mart Inventory System</title>
+
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    /* HEADER WITH LOGO */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .header img {
+  width: 60px;
+  height: 60px; 
+  object-fit: contain;
+  display: block;
+  background-color; 
+  }
+
+}
+    h1 {
+      margin: 0;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .menu button {
+      flex: 1 1 200px;
+      padding: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #1976d2;
+      color: #fff;
+    }
+
+    .menu button:hover {
+      background: #125aa0;
+    }
+
+    .form-section {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+
+    .form-section button {
+      margin-top: 15px;
+      padding: 8px 15px;
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-section button:hover {
+      background: #1e5e23;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #eeeeee;
+    }
+
+    #output {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="logo.png" alt="Test Logo">
+    <h1>StockWise Mart Inventory Management System</h1>
+  </div>
+
+  <div class="container">
+    <div class="menu">
+      <button onclick="showSection('add')">Add Item</button>
+      <button onclick="viewItems()">View All Items</button>
+      <button onclick="showSection('update')">Update Quantity</button>
+      <button onclick="showSection('delete')">Delete Item</button>
+      <button onclick="calculateValue()">Calculate Inventory Value</button>
+      <button onclick="showSection('search')">Search Item</button>
+      <button onclick="exitProgram()">Exit</button>
+    </div>
+
+    <!-- Add Item -->
+    <div id="add" class="form-section">
+      <h3>Add New Item</h3>
+      <label>Item Code</label>
+      <input type="text" id="addCode" />
+      <label>Item Name</label>
+      <input type="text" id="addName" />
+      <label>Quantity</label>
+      <input type="number" id="addQty" />
+      <label>Price</label>
+      <input type="number" id="addPrice" />
+      <button onclick="addItem()">Submit</button>
+    </div>
+
+    <!-- Update Quantity -->
+    <div id="update" class="form-section">
+      <h3>Update Quantity</h3>
+      <label>Item Code</label>
+      <input type="text" id="updateCode" />
+      <label>New Quantity</label>
+      <input type="number" id="updateQty" />
+      <button onclick="updateQuantity()">Update</button>
+    </div>
+
+    <!-- Delete Item -->
+    <div id="delete" class="form-section">
+      <h3>Delete Item</h3>
+      <label>Item Code</label>
+      <input type="text" id="deleteCode" />
+      <button onclick="deleteItem()">Delete</button>
+    </div>
+
+    <!-- Search Item -->
+    <div id="search" class="form-section">
+      <h3>Search Item</h3>
+      <label>Item Code</label>
+      <input type="text" id="searchCode" />
+      <button onclick="searchItem()">Search</button>
+    </div>
+
+    <div id="output"></div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    let inventory = [];
+
+    function hideAllSections() {
+      document.querySelectorAll('.form-section').forEach(section => {
+        section.style.display = 'none';
+      });
+    }
+
+    function showSection(id) {
+      hideAllSections();
+      output.innerHTML = '';
+      document.getElementById(id).style.display = 'block';
+    }
+
+    function addItem() {
+      let code = addCode.value.trim();
+      let name = addName.value.trim();
+      let qty = Number(addQty.value);
+      let price = Number(addPrice.value);
+
+      if (!code || !name || qty <= 0 || price <= 0) {
+        alert('Please fill in all fields correctly.');
+        return;
+      }
+
+      if (inventory.find(item => item.code === code)) {
+        alert('Item code already exists.');
+        return;
+      }
+
+      inventory.push({ code, name, qty, price });
+      alert('Item successfully added!');
+      hideAllSections();
+    }
+
+    function viewItems() {
+      hideAllSections();
+
+      if (inventory.length === 0) {
+        output.innerHTML = '<p>No items found in inventory.</p>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <tr>
+            <th>Item Code</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+      `;
+
+      inventory.forEach(item => {
+        html += `
+          <tr>
+            <td>${item.code}</td>
+            <td>${item.name}</td>
+            <td>${item.qty}</td>
+            <td>${item.price}</td>
+          </tr>
+        `;
+      });
+
+      html += '</table>';
+      output.innerHTML = html;
+    }
+
+    function updateQuantity() {
+      let item = inventory.find(i => i.code === updateCode.value.trim());
+      if (!item) return alert('Item not found.');
+      if (updateQty.value <= 0) return alert('Invalid quantity.');
+
+      item.qty = Number(updateQty.value);
+      alert('Quantity updated successfully.');
+      hideAllSections();
+    }
+
+    function deleteItem() {
+      let index = inventory.findIndex(i => i.code === deleteCode.value.trim());
+      if (index === -1) return alert('Item not found.');
+
+      inventory.splice(index, 1);
+      alert('Item removed.');
+      hideAllSections();
+    }
+
+    function calculateValue() {
+      hideAllSections();
+      let total = inventory.reduce((sum, i) => sum + i.qty * i.price, 0);
+      output.innerHTML = `<h3>Total Inventory Value: ₱${total}</h3>`;
+    }
+
+    function searchItem() {
+      let item = inventory.find(i => i.code === searchCode.value.trim());
+      if (!item) return alert('Item not found.');
+
+      output.innerHTML = `
+        <table>
+          <tr><th>Item Code</th><td>${item.code}</td></tr>
+          <tr><th>Name</th><td>${item.name}</td></tr>
+          <tr><th>Quantity</th><td>${item.qty}</td></tr>
+          <tr><th>Price</th><td>${item.price}</td></tr>
+        </table>
+      `;
+    }
+
+    function exitProgram() {
+      hideAllSections();
+      output.innerHTML = '<p>System cleared. Thank you!</p>';
+    }
+  </script>
+
+</body>
+</html>
